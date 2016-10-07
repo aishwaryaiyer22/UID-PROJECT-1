@@ -55,8 +55,8 @@ function getInfo(){
 	  		document.getElementById("output").innerHTML = "Success";
 	  		document.getElementById("loadingbutton").innerHTML = "<img src=tumblr_nh1mchoRUh1sqqx06o1_500.gif style=width:40px;height:40px;align:center;>";
 	  		document.getElementById("formpage").style.display = "hidden";
+	  		console.log(JSON.stringify(this.responseText));
 	  		open_display(string);
-	  		// console.log(stringified);
 	  }
 	  else {
 	  	console.log(this.status);
