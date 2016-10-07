@@ -24,14 +24,14 @@ function getInfo(){
 	}	
 	if (document.getElementById("includeOffice")!= null)  
 		finalUrl += "&includeOffices="+document.getElementById("includeOffice").value;
-	
+
 	if (document.getElementById("levels")!= null) {
 		var select1 = document.getElementById("levels");
 	    for (var i = 0; i < select1.length; i++) {
 	        if (select1.options[i].selected) 
 	        	finalUrl += "&levels="+select1.options[i].value;
 	    }
-    	// console.log(finalUrl);
+		// console.log(finalUrl);
 	}
 
 		
@@ -41,11 +41,11 @@ function getInfo(){
 	        if (select1.options[i].selected) 
 	        	finalUrl += "&roles="+select1.options[i].value;
 	    }
-    	// console.log(finalUrl);
+		// console.log(finalUrl);
 	}
 		
 	finalUrl += "&key="+GOOGLE_API_KEY
-	console.log("finalUrl "+finalUrl);
+	//console.log("finalUrl "+finalUrl);
 	//var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;	
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
