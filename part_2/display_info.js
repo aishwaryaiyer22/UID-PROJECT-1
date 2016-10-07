@@ -1,32 +1,52 @@
 
 var response;
-var doc;
+var total_official_pages;
 function open_display(response_parsed) {
 	response = response_parsed; 
-	doc = document.open();
+	document.open();
 	initialHtml = getinitialHtml()
 	document.write(initialHtml);
 
 	numberOfficials = response["officials"].length;
-	console.log(numberOfficials);
 	numberOffices = response["offices"].length;
-	var pages;
-	if((numberOffices + numberOfficials)%10 == 0)
-		pages = (numberOffices + numberOfficials)/10;
-	else
-		pages = ((numberOffices + numberOfficials)/10) + 1;
+	console.log(numberOffices);
 
-	paginationString = get_pagination_for(1, pages);
-	first_page = getOfficialsInfoOnPage(1);
-	// document.getElementById("pagination").innerHTML = paginationString;
-	// document.getElementById("results").innerHTML = first_page;
-	populate_page(first_page, paginationString);
+	total_official_pages = numberOfficials%10==0?numberOfficials/10:numberOfficials/10 +1;
+	var total_office_pages = numberOffices%10==0?numberOffices/10:numberOffices/10 +1;
+	total_pages = total_office_pages+total_official_pages;
+
+	populate_page(1);
 	
-	function populate_page (html_string, paginationString) {
-		document.getElementById("pagination").innerHTML = paginationString;
-		document.getElementById("results").innerHTML = html_string;
+}
+function populate_page (page) {
+		page_attributes = get_page_attributes(page);
+		if(page_attributes.kind == 0)
+			document.getElementById("headerInfo").innerHTML = "Officials";
+		else
+			document.getElementById("headerInfo").innerHTML = "Offices";
+		document.getElementById("pagination").innerHTML = page_attributes.pagination_menu;
+		document.getElementById("results").innerHTML = page_attributes.page_data;
 	}
 
+function toggle_pages(page){
+
+}
+
+function get_page_attributes(page) {
+	paginationString = get_pagination_for(page, total_pages);
+	info_kind = 0;
+  if(page > total_official_pages) {
+  	info_list = getOffices(page-total_official_pages);
+  	info_kind = 1;
+  }
+  	
+  else
+  	info_list = getOfficialsInfoOnPage(page);
+   return {
+      pagination_menu: paginationString,
+      page_data: info_list,
+      kind: info_kind
+  };
 }
 
 function min(a,b) {
@@ -37,13 +57,16 @@ function get_pagination_for(page, total_pages) {
 	paginationString = "<ul class=pagination>";
 	for (i = 1; i<= total_pages; i++) {
 		if (i == page) {
-			paginationString += "<li><button onClick=getOfficialsInfoOnPage("+i+") class = active>"+i+"</a></li>"
+			paginationString += "<li><button style = background-color:blue;>"+i+"</button></li>"
 		}
 		else
-			paginationString += "<li><button onClick=getOfficialsInfoOnPage("+i+")>"+i+"</a></li>"; 
+			paginationString += "<li><button onclick=populate_page("+i+")>"+i+"</button></li>"; 
 	}
-	console.log(paginationString);
+	paginationString += "</ul>"
+	return paginationString;
 }
+
+
 
 function getOfficialsInfoOnPage(page) {
 	index = (page-1)*10;
@@ -86,8 +109,44 @@ function getOfficialsInfoOnPage(page) {
 	//console.log(search_result_html);
 	return search_result_html;
 }
+
+function getOffices(curr_page) {
+	index = (curr_page-1)*10;
+	search_result_html = "";
+	if (index == 1) 
+		search_result_html = "<div class=container>";
+	i = index
+	for(i; i<min(index+10,response["offices"].length);i++) {
+		if (response["offices"][i]) {
+			//get name
+			search_result_html += "<div class = col-md-5><h4>Name: "+response["offices"][i]["name"]+"</h4>";
+			
+			//get levels
+			levels_string = ""
+			if(response["offices"][i]["levels"] != null) 
+				for (j = 0; j< response["offices"][i]["levels"].length; j++) {
+					levels_string += response["offices"][i]["levels"][j]+", ";
+				}
+			levels_final = "<h4>Levels: "+levels_string+"</h4>";
+			search_result_html +=levels_final;
+
+			//get roles
+			role_string = ""
+			if(response["offices"][i]["roles"] != null) 
+				for (j = 0; j< response["offices"][i]["roles"].length; j++) {
+					levels_string += response["offices"][i]["roles"][j]+", ";
+				}
+			role_final = "<h4>Roles: "+levels_string+"</h4>";
+			search_result_html +=role_final+"</div></div><br>";	
+		}
+	}
+	return search_result_html;
+		
+}
+
+
 function getinitialHtml(){
-	htmlInitial = "<html><title>Representative Information</title><!-- Bootstrap Sample CSS --><link href=startbootstrap-1-col-portfolio-gh-pages/css/bootstrap.min.css rel=stylesheet><!-- Custom CSS --><link href=startbootstrap-1-col-portfolio-gh-pages/css/1-col-portfolio.css rel=stylesheet><body style = margin-left: 20%;><div class=row><h1 class=\"col-lg-12\"  id = headerInfo>"+"Officials"+"</h1></div><div id = results></div><hr><!-- Pagination --><div class=row text-center><div class=col-lg-12><div id = pagination></div><script src=startbootstrap-1-col-portfolio-gh-pages/js/jquery.js></script><!-- Bootstrap Core JavaScript --><script src=startbootstrap-1-col-portfolio-gh-pages/js/bootstrap.min.js></script><script src = display_info.js type = text/javascript></script>";
+	htmlInitial = "<html><title>Representative Information</title><!-- Bootstrap Sample CSS --><link href=startbootstrap-1-col-portfolio-gh-pages/css/bootstrap.min.css rel=stylesheet><!-- Custom CSS --><link href=startbootstrap-1-col-portfolio-gh-pages/css/1-col-portfolio.css rel=stylesheet><body style = margin-left: 20%;><div class=row><h1 class=col-lg-12 id = headerInfo></h1></div><div id = results></div><hr><!-- Pagination --><div class=row text-center><div class=col-lg-12 id = pagination></div></div><script src=startbootstrap-1-col-portfolio-gh-pages/js/jquery.js></script><!-- Bootstrap Core JavaScript --><script src=startbootstrap-1-col-portfolio-gh-pages/js/bootstrap.min.js></script><script src = display_info.js type = text/javascript></script>";
 	//console.log(htmlInitial);
 	return htmlInitial;
 }
@@ -107,16 +166,13 @@ function getinitialHtml(){
 //                 <h4>Phone number:</h4>"+response["officials"][index]["phones"][0]+"
 //             </div>
 //         </div>"
-// <ul class=pagination><li class="active"><a href="#">1</a></li><li><a href="#">2</a></li>                 <li>
-//                         <a href="#">3</a>
-//                     </li>
-//                     <li>
-//                         <a href="#">4</a>
-//                     </li>
-//                     <li>
-//                         <a href="#">5</a>
-//                     </li>
-                  
-//                 </ul>
-//             </div>
-//         </div>
+
+// name": "President of the United States",
+//    "divisionId": "ocd-division/country:us",
+//    "levels": [
+//     "country"
+//    ],
+//    "roles": [
+//     "headOfState",
+//     "headOfGovernment"
+//    ],
